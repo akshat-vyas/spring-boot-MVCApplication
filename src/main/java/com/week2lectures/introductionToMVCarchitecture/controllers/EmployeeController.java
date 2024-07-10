@@ -2,12 +2,16 @@ package com.week2lectures.introductionToMVCarchitecture.controllers;
 
 
 import com.week2lectures.introductionToMVCarchitecture.dto.EmployeeDTO;
-import com.week2lectures.introductionToMVCarchitecture.entities.EmployeeEntity;
-import com.week2lectures.introductionToMVCarchitecture.repositories.EmployeeRepository;
+import com.week2lectures.introductionToMVCarchitecture.services.EmployeeService;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path="/employees")
@@ -18,35 +22,61 @@ public class EmployeeController {
 //        return "sak,fbv%#@lkdj";
 //    }
 
-    private final EmployeeRepository employeeRepository;
+//    private final EmployeeRepository employeeRepository;
 
-    public EmployeeController(EmployeeRepository employeeRepository){
-        this.employeeRepository=employeeRepository;
+    private final EmployeeService employeeService;
+
+
+    public EmployeeController (ModelMapper modelMapper, EmployeeService employeeService){
+
+        this.employeeService=employeeService;
     }
 
+
     @GetMapping("/{employeeID}")
-    public EmployeeEntity getEmployeeByID(@PathVariable(name="employeeID") Long id){
-//        return new EmployeeDTO(id,"Akshat","akshat@gmail.com",22, LocalDate.of(2024,1,2),true);
-        return employeeRepository.findById(id).orElse(null);
+    public ResponseEntity<EmployeeDTO> getEmployeeByID(@PathVariable(name="employeeID") Long id){
+
+        Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeByID(id);
+        return employeeDTO
+                .map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<EmployeeEntity> getAllEmployees(@RequestParam(required=false,name="InputAge") Integer age,
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployees(@RequestParam(required=false,name="InputAge") Integer age,
                                 @RequestParam(required=false) String sortBy){
 //        return "hi age "+age +" Sort By " +sortBy;
-        return employeeRepository.findAll();
+        return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
     @PostMapping
-    public EmployeeEntity createNewEmployee(@RequestBody EmployeeEntity inputEmployee){
+    public ResponseEntity<EmployeeDTO> createNewEmployee(@RequestBody EmployeeDTO inputEmployee){
 //        inputEmployee.setId(100L);
 //        return inputEmployee;
-        return employeeRepository.save(inputEmployee);
+        EmployeeDTO savedEmployee= employeeService.createNewEmployee(inputEmployee);
+        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
 
-    @PutMapping
-    public String updateNewEmployee(){
-        return "Hello from PUT";
+    @PutMapping(path="/{employeeId}")
+    public ResponseEntity<EmployeeDTO> updateNewEmployeeById(@PathVariable Long employeeId, @RequestBody EmployeeDTO employeeDTO){
+        return ResponseEntity.ok(employeeService.updateNewEmployeeById(employeeId, employeeDTO));
+    }
+
+    @DeleteMapping(path="/{employeeId}")
+    public ResponseEntity<Boolean> deleteEmployeeById(@PathVariable Long employeeId){
+        boolean gotDeleted=employeeService.deleteEmployeeById(employeeId);
+        if(gotDeleted) return ResponseEntity.ok(true);
+        return ResponseEntity.notFound().build();
+    }
+
+    @PatchMapping(path="/{employeeId}")
+    public ResponseEntity<EmployeeDTO> updatePartialEmployeeById(@PathVariable Long employeeId,
+                                     @RequestBody Map<String,Object> updates){
+        EmployeeDTO employeeDTO= employeeService.updatePartialEmployeeById(employeeId,updates);
+        if(employeeDTO==null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(employeeDTO);
     }
 
 
