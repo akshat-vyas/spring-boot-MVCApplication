@@ -3,6 +3,7 @@ package com.week2lectures.introductionToMVCarchitecture.controllers;
 
 import com.week2lectures.introductionToMVCarchitecture.dto.EmployeeDTO;
 import com.week2lectures.introductionToMVCarchitecture.services.EmployeeService;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createNewEmployee(@RequestBody EmployeeDTO inputEmployee){
+    public ResponseEntity<EmployeeDTO> createNewEmployee(@RequestBody @Valid EmployeeDTO inputEmployee){
 //        inputEmployee.setId(100L);
 //        return inputEmployee;
         EmployeeDTO savedEmployee= employeeService.createNewEmployee(inputEmployee);
