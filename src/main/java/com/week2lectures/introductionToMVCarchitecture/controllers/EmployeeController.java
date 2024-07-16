@@ -2,6 +2,7 @@ package com.week2lectures.introductionToMVCarchitecture.controllers;
 
 
 import com.week2lectures.introductionToMVCarchitecture.dto.EmployeeDTO;
+import com.week2lectures.introductionToMVCarchitecture.exceptions.ResourceNotFoundException;
 import com.week2lectures.introductionToMVCarchitecture.services.EmployeeService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -40,7 +42,7 @@ public class EmployeeController {
         Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeByID(id);
         return employeeDTO
                 .map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(()->new ResourceNotFoundException("Employee not found with id: "+id));
     }
 
     @GetMapping
