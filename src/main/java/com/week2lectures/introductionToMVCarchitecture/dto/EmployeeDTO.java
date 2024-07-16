@@ -1,6 +1,7 @@
 package com.week2lectures.introductionToMVCarchitecture.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.week2lectures.introductionToMVCarchitecture.annotations.EmployeeRoleValidation;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +33,8 @@ public class EmployeeDTO {
     private Integer age;
 
     @NotBlank(message = "The role of Employee can not be blank.")
-    @Pattern(regexp = "^(ADMIN|USER)$" , message = "The role of Employee can either be ADMIN or USER.")
+//    @Pattern(regexp = "^(ADMIN|USER)$" , message = "The role of Employee can either be ADMIN or USER.")
+    @EmployeeRoleValidation
     private String role;
 
     @NotNull(message = "Salary of Employee should not be null.")
